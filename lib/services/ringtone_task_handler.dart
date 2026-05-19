@@ -21,7 +21,24 @@ class RingtoneTaskHandler extends TaskHandler {
   @override
   Future<void> onStart(DateTime timestamp, TaskStarter starter) async {
     print('🔔 RingtoneTaskHandler: starting ringtone');
-    
+    // Configure audio context to play loudly as a ringtone and keep device awake
+    await _player.setAudioContext(AudioContext(
+      android: AudioContextAndroid(
+        isSpeakerphoneOn: true,
+        stayAwake: true,
+        contentType: AndroidContentType.music,
+        usageType: AndroidUsageType.notificationRingtone,
+        audioFocus: AndroidAudioFocus.gainTransientExclusive,
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.playback,
+        options: {
+          AVAudioSessionOptions.defaultToSpeaker,
+          AVAudioSessionOptions.mixWithOthers,
+        },
+      ),
+    ));
+
     // Play audio in a loop
     await _player.setReleaseMode(ReleaseMode.loop);
     await _player.play(AssetSource('ringtone/incoming.mp3'));
@@ -42,9 +59,9 @@ class RingtoneTaskHandler extends TaskHandler {
       }
     }
 
-    // Stop automatically after 15 seconds
-    _stopTimer = Timer(const Duration(seconds: 15), () {
-      print('⏱️ RingtoneTaskHandler: 15 seconds elapsed, stopping service');
+    // Stop automatically after 60 seconds (normal phone call duration)
+    _stopTimer = Timer(const Duration(seconds: 60), () {
+      print('⏱️ RingtoneTaskHandler: 60 seconds elapsed, stopping service');
       FlutterForegroundTask.stopService();
     });
   }

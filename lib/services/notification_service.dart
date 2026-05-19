@@ -5,6 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zego_zpns/zego_zpns.dart';
 import 'package:chating/services/user_service.dart';
+import 'package:chating/services/ringtone_service.dart';
 
 /// Manages FCM token retrieval, ZIM push registration,
 /// ZPNs registration, and notification permission requests.
@@ -16,7 +17,6 @@ class NotificationService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
-  final AudioPlayer _ringtonePlayer = AudioPlayer();
   bool _initialized = false;
 
   String? _fcmToken;
@@ -284,21 +284,20 @@ class NotificationService {
   /// Plays incoming.mp3 on a loop until [stopRingtone] is called.
   Future<void> playRingtone() async {
     try {
-      await _ringtonePlayer.setReleaseMode(ReleaseMode.loop);
-      await _ringtonePlayer.play(AssetSource('ringtone/incoming.mp3'));
-      print('🔔 NotificationService: Ringtone started');
+      await RingtoneService.start();
+      print('🔔 NotificationService: RingtoneService started');
     } catch (e) {
-      print('⚠️ NotificationService: Could not play ringtone: $e');
+      print('⚠️ NotificationService: Could not start RingtoneService: $e');
     }
   }
 
   /// Stops the ringtone immediately.
   Future<void> stopRingtone() async {
     try {
-      await _ringtonePlayer.stop();
-      print('🔕 NotificationService: Ringtone stopped');
+      await RingtoneService.stop();
+      print('🔕 NotificationService: RingtoneService stopped');
     } catch (e) {
-      print('⚠️ NotificationService: Could not stop ringtone: $e');
+      print('⚠️ NotificationService: Could not stop RingtoneService: $e');
     }
   }
 
