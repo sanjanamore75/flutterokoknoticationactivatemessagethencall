@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -240,6 +241,8 @@ class NotificationService {
       playSound: true,
       sound: sound,
       enableVibration: true,
+      autoCancel: true,
+      additionalFlags: isCall ? Int32List.fromList(<int>[4]) : null, // FLAG_INSISTENT to loop sound/vibration natively
       // Accept / Decline buttons for call notifications
       actions: isCall
           ? <AndroidNotificationAction>[
@@ -265,10 +268,7 @@ class NotificationService {
 
     final notificationDetails = NotificationDetails(android: androidDetails);
 
-    // Play ringtone for call notifications
-    if (isCall) {
-      playRingtone();
-    }
+    // (Ringtone is handled natively by FLAG_INSISTENT in the notification itself)
 
     await _localNotifications.show(
       DateTime.now().millisecond,
